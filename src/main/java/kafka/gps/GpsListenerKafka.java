@@ -4,11 +4,9 @@ import java.time.Duration;
 import java.util.Properties;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.message.ListOffsetsRequestData;
-
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.ArrayList;
 
 /* There are 10 streams of GPS event, named "Tracker0"-"Tracker9"
 Each stream should be sent to a Kafka topic with a corresponding name.
@@ -35,6 +33,7 @@ public class GpsListenerKafka implements GpsListener
 {
     KafkaProducer<String, String> producer;
     AdminClient adminClient;
+    ArrayList<String> createdTopic;
 
     public void init_producerProperties()
     {
@@ -72,9 +71,9 @@ public class GpsListenerKafka implements GpsListener
         return newTopic;
     }
 
-    public boolean checkIfTopicExists(Set<String> topics, String topicToCheck)
+    public boolean checkIfTopicExists(String topicToCheck)
     {
-        for (String topic: topics)
+        for (String topic: createdTopic)
         {
             if (topicToCheck.equals(topic))
             {
@@ -84,20 +83,19 @@ public class GpsListenerKafka implements GpsListener
         return false;
     }
 
+
     @Override
     // name -> tracker id
-    public void update(String name, double latitude, double longitude, double altitude) throws ExecutionException, InterruptedException {
-        ListTopicsResult existing_topics = adminClient.listTopics();
-        Set<String> topics = existing_topics.names().get();
-
-        boolean existingTopic = checkIfTopicExists(topics, name);
+    public void update(String name, double latitude, double longitude, double altitude) {
+        boolean existingTopic = checkIfTopicExists(name);
         if (existingTopic == false)
         {
+            createdTopic.add(name);
             createTopic(name);
         }
 
         System.out.println("Testing: print all existing topics");
-        topics.forEach(System.out::println);
+        createdTopic.forEach(System.out::println);
 
 
         init_producerProperties();

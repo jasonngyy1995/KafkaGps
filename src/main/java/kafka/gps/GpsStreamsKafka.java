@@ -5,7 +5,6 @@ import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 /* For the streams:
 
@@ -49,7 +48,7 @@ public class GpsStreamsKafka
 
     }
 
-    public static void main(String[] args) throws Exception
+    public static void firstSetOfStreams()
     {
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "KafkaGps");
@@ -62,11 +61,20 @@ public class GpsStreamsKafka
             StreamsBuilder gpsStreamer = new StreamsBuilder();
             KStream<String, String> gpsReading = gpsStreamer.stream("Tracker"+1);
 
-            KStream updatedValue = gpsReading.mapValues(value -> Arrays.asList(value.split(","))
-                    .remove(2));
+            KStream updatedValue = gpsReading.mapValues(value -> String.join(",",Arrays.asList(value.split(","))
+                    .remove(2)));
 
             updatedValue.to("SimpleTracker"+i);
         }
+    }
 
+    public static void thirdSetOfStreams()
+    {
+
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        firstSetOfStreams();
     }
 }

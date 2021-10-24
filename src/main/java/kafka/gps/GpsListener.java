@@ -12,6 +12,6 @@ public interface GpsListener {
      * @param   longitude The Longitude of the GPS device at the time of the update.
      * @param   altitude The Altitude (in feet) of the GPS device at the time of the update.
      */
-    public void update(String name, double latitude, double longitude, double altitude) throws ExecutionException, InterruptedException;
+    public void update(String name, double latitude, double longitude, double altitude);
 
 } 
