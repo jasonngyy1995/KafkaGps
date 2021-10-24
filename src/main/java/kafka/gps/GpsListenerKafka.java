@@ -106,9 +106,9 @@ public class GpsListenerKafka implements GpsListener
         String lat_str = Double.toString(latitude);
         String alt_str = Double.toString(altitude);
 
-        String key_coordinate = long_str + "," + lat_str;
+        String key = "coordinates";
         String value = lat_str + "," + long_str + "," + alt_str;
-        ProducerRecord producerRecord = create_producerRecord(name, key_coordinate, value);
+        ProducerRecord producerRecord = create_producerRecord(name, key, value);
 
         producer.send(producerRecord, new AsyncProducerCallback());
         System.out.println("Sent Completed.");
