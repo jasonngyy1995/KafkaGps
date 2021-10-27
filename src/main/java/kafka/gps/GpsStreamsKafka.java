@@ -12,7 +12,8 @@ import java.util.Properties;
 e.g. 40.0138816,116.3438099,154.2 -> 40.0138816,116.3438099
 Each new stream should output to a topic named "SimpleTrackerX", where X matches the input stream number.
 The key for each event should remain the same.
-1 stream that combines all input streams, and only outputs GPS events in the greater Beijing area (Latitude between 39.5-40.5, Longitude between 115.5 -117.0)
+1 stream that combines all input streams, and only outputs GPS events in the greater Beijing area (Latitude between 39.5-40.5,
+Longitude between 115.5 -117.0)
 The key for each event should be prepended with the name of the input stream.
 1 set (10) of streams that take the Tracker0-9 topics and outputs the total distance travelled over the last 5 minutes for each topic respectively.
 The key for each new event should be "distance" from the start of the 5 minute period.
@@ -48,7 +49,7 @@ public class GpsStreamsKafka
 
     }
 
-    public static void firstSetOfStreams()
+    public Properties init_properties()
     {
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "KafkaGps");
@@ -56,25 +57,80 @@ public class GpsStreamsKafka
         properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
+        return properties;
+    }
+
+    /* 1 set (10) of streams that take the Tracker0-9 topics and remove the Altitude field.
+    e.g. 40.0138816,116.3438099,154.2 -> 40.0138816,116.3438099
+    Each new stream should output to a topic named "SimpleTrackerX", where X matches the input stream number.
+    The key for each event should remain the same. */
+    public void firstSetOfStreams(StreamsBuilder gpsStreamer)
+    {
         for (int i = 0; i < 10; i++)
         {
-            StreamsBuilder gpsStreamer = new StreamsBuilder();
             KStream<String, String> gpsReading = gpsStreamer.stream("Tracker"+1);
-
-            KStream updatedValue = gpsReading.mapValues(value -> String.join(",",Arrays.asList(value.split(","))
+            KStream<String, String> updatedValue = gpsReading.mapValues(value -> String.join(",",Arrays.asList(value.split(","))
                     .remove(2)));
 
             updatedValue.to("SimpleTracker"+i);
         }
     }
 
-    public static void thirdSetOfStreams()
+    public KStream<String, String> combine_stream(StreamsBuilder gpsStreamer)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            String topic_name = "Tracker"+i;
+            KStream<String, String> newStream = gpsStreamer.stream(topic_name).map((key,value) ->  new KeyValue<>(topic_name, value.toString()));
+            KStream<String, String> combinedStream = null;
+            if (i == 0)
+            {
+                combinedStream = newStream;
+            } else {
+                combinedStream = combinedStream.merge(newStream);
+            }
+            return combinedStream;
+        }
+    }
+
+    /* 1 stream that combines all input streams, and only outputs GPS events in the greater Beijing area (Latitude between 39.5-40.5, Longitude between 115.5 -117.0)
+    The key for each event should be prepended with the name of the input stream. */
+    public void secondSetOfStream(StreamsBuilder gpsStreamer)
+    {
+        KStream<String, String> combined_stream = combine_stream(gpsStreamer);
+        KStream<String, String> GreaterBeijingAreaEvents = combined_stream.filter((key, value) -> {
+            String[] tmp = value.split(",");
+            double event_lat = Double.parseDouble(tmp[0]);
+            double event_long = Double.parseDouble(tmp[1]);
+
+            if ((event_lat >= 39.5 && event_lat <= 40.5) && (event_long >= 115.5 && event_long <= 117.0))
+            {
+                return true;
+            }
+            return false;
+        });
+
+        GreaterBeijingAreaEvents.to("greaterBeijingAreaEvents");
+    }
+
+    /* 1 set (10) of streams that take the Tracker0-9 topics and outputs the total distance travelled over the last 5 minutes for each topic respectively.
+    The key for each new event should be "distance" from the start of the 5 minute period.
+    The value should be a distance in meters
+    Each new stream should output to a topic named "DistanceTrackerX", where X matches the input stream number. */
+    public void thirdSetOfStream(StreamsBuilder gpsStreamer)
     {
 
     }
 
-    public static void main(String[] args) throws Exception
+    public void runStreams()
     {
-        firstSetOfStreams();
+        Properties props =  init_properties();
+        StreamsBuilder gpsStreamer = new StreamsBuilder();
+        firstSetOfStreams(gpsStreamer);
+        secondSetOfStream(gpsStreamer);
+
+        KafkaStreams streams = new KafkaStreams(gpsStreamer.build(), props);
+        streams.cleanUp();
+        streams.start();
     }
 }

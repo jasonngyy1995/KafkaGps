@@ -29,6 +29,23 @@ class AsyncProducerCallback implements Callback
     }
 }
 
+class gpsEvent
+{
+    String value;
+    int longitude;
+    int latitude;
+
+    int getLongitude()
+    {
+        return this.longitude;
+    }
+
+    int getLatitude()
+    {
+        return this.latitude;
+    }
+}
+
 public class GpsListenerKafka implements GpsListener
 {
     KafkaProducer<String, String> producer;
@@ -67,7 +84,7 @@ public class GpsListenerKafka implements GpsListener
 
                 new NewTopic(trackerID, partition, replica))
         );
-
+        // /Users/jason/GitHub_file_management/KafkaGps/src/main/java/kafka/gps/kafka_2.13-3.0.0/libs
         return newTopic;
     }
 
