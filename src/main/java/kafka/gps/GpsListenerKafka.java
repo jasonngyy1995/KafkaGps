@@ -29,23 +29,6 @@ class AsyncProducerCallback implements Callback
     }
 }
 
-class gpsEvent
-{
-    String value;
-    int longitude;
-    int latitude;
-
-    int getLongitude()
-    {
-        return this.longitude;
-    }
-
-    int getLatitude()
-    {
-        return this.latitude;
-    }
-}
-
 public class GpsListenerKafka implements GpsListener
 {
     KafkaProducer<String, String> producer;

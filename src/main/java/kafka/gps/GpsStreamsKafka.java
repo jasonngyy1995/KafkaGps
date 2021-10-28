@@ -78,19 +78,19 @@ public class GpsStreamsKafka
 
     public KStream<String, String> combine_stream(StreamsBuilder gpsStreamer)
     {
+        KStream<String, String> combinedStream = null;
         for (int i = 0; i < 10; i++)
         {
             String topic_name = "Tracker"+i;
             KStream<String, String> newStream = gpsStreamer.stream(topic_name).map((key,value) ->  new KeyValue<>(topic_name, value.toString()));
-            KStream<String, String> combinedStream = null;
             if (i == 0)
             {
                 combinedStream = newStream;
             } else {
                 combinedStream = combinedStream.merge(newStream);
             }
-            return combinedStream;
         }
+        return combinedStream;
     }
 
     /* 1 stream that combines all input streams, and only outputs GPS events in the greater Beijing area (Latitude between 39.5-40.5, Longitude between 115.5 -117.0)
@@ -110,7 +110,7 @@ public class GpsStreamsKafka
             return false;
         });
 
-        GreaterBeijingAreaEvents.to("greaterBeijingAreaEvents");
+        GreaterBeijingAreaEvents.to("Beijing");
     }
 
     /* 1 set (10) of streams that take the Tracker0-9 topics and outputs the total distance travelled over the last 5 minutes for each topic respectively.
@@ -124,7 +124,7 @@ public class GpsStreamsKafka
 
     public void runStreams()
     {
-        Properties props =  init_properties();
+        Properties props = init_properties();
         StreamsBuilder gpsStreamer = new StreamsBuilder();
         firstSetOfStreams(gpsStreamer);
         secondSetOfStream(gpsStreamer);
