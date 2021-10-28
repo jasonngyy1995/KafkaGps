@@ -83,7 +83,6 @@ public class GpsListenerKafka implements GpsListener
         return false;
     }
 
-
     @Override
     // name -> tracker id
     public void update(String name, double latitude, double longitude, double altitude) {
@@ -96,7 +95,6 @@ public class GpsListenerKafka implements GpsListener
 
         System.out.println("Testing: print all existing topics");
         createdTopic.forEach(System.out::println);
-
 
         init_producerProperties();
 

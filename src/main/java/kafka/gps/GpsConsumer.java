@@ -19,7 +19,7 @@ public class GpsConsumer
     {
         Properties kafkaProps = new Properties();
         kafkaProps.setProperty("bootstrap.servers", "broker1:9092,broker2:9092");
-        kafkaProps.setProperty("group.id", "CountryCounter");
+        kafkaProps.setProperty("group.id", "gpsConsumer");
         kafkaProps.setProperty("enable.auto.commit", "true");
         kafkaProps.setProperty("auto.commit.interval.ms", "1000");
         kafkaProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
