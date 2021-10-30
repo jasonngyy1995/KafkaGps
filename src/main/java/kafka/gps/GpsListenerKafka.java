@@ -22,7 +22,7 @@ class AsyncProducerCallback implements Callback
     {
         if (e != null)
         {
-            System.out.println("Asyn producer succeed1.");
+            System.out.println("Asyn producer succeed.");
         } else {
             System.out.println("Asyn producer failed.");
         }
@@ -31,72 +31,23 @@ class AsyncProducerCallback implements Callback
 
 public class GpsListenerKafka implements GpsListener
 {
-    KafkaProducer<String, String> producer;
-    AdminClient adminClient;
-    ArrayList<String> createdTopic;
-
-    public void init_producerProperties()
-    {
-        Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", "broker1:9092,broker2:9092");
-        kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-        producer = new KafkaProducer<>(kafkaProps);
-    }
-
-    public void init_adminClient()
-    {
-        Properties properties = new Properties();
-        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        adminClient.create(properties);
-        adminClient.close(Duration.ofSeconds(30));
-    }
-
     public ProducerRecord create_producerRecord(String name, String key, String value)
     {
         ProducerRecord<String, String> newProducerRecord = new ProducerRecord<>(name, key, value);
         return newProducerRecord;
     }
 
-    public CreateTopicsResult createTopic(String trackerID)
-    {
-        int partition = 1;
-        short replica = 1;
-        CreateTopicsResult newTopic = adminClient.createTopics(Collections.singletonList(
-
-                new NewTopic(trackerID, partition, replica))
-        );
-        // /Users/jason/GitHub_file_management/KafkaGps/src/main/java/kafka/gps/kafka_2.13-3.0.0/libs
-        return newTopic;
-    }
-
-    public boolean checkIfTopicExists(String topicToCheck)
-    {
-        for (String topic: createdTopic)
-        {
-            if (topicToCheck.equals(topic))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     // name -> tracker id
     public void update(String name, double latitude, double longitude, double altitude) {
-        boolean existingTopic = checkIfTopicExists(name);
-        if (existingTopic == false)
-        {
-            createdTopic.add(name);
-            createTopic(name);
-        }
+        Properties kafkaProps = new Properties();
+        kafkaProps.put("bootstrap.servers", "localhost:9092");
+        kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        kafkaProps.put("auto.create.topics.enable", true);
 
-        System.out.println("Testing: print all existing topics");
-        createdTopic.forEach(System.out::println);
-
-        init_producerProperties();
+        KafkaProducer<String, String> producer = new KafkaProducer<>(kafkaProps);
 
         String long_str = Double.toString(longitude);
         String lat_str = Double.toString(latitude);
@@ -108,6 +59,7 @@ public class GpsListenerKafka implements GpsListener
 
         producer.send(producerRecord, new AsyncProducerCallback());
         System.out.println("Sent Completed.");
+        System.out.println(name+": "+value);
 
         producer.flush();
         producer.close();

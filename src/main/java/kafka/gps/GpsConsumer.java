@@ -18,21 +18,24 @@ public class GpsConsumer
     public static void main(String[] args)
     {
         Properties kafkaProps = new Properties();
-        kafkaProps.setProperty("bootstrap.servers", "broker1:9092,broker2:9092");
-        kafkaProps.setProperty("group.id", "gpsConsumer");
-        kafkaProps.setProperty("enable.auto.commit", "true");
-        kafkaProps.setProperty("auto.commit.interval.ms", "1000");
-        kafkaProps.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        kafkaProps.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        kafkaProps.put("bootstrap.servers", "localhost:9092");
+        kafkaProps.put("group.id", "gpsConsumer");
+        kafkaProps.put("auto.offset.reset","earliest");
+        kafkaProps.put("enable.auto.commit", "true");
+        kafkaProps.put("auto.commit.interval.ms", "1000");
+        kafkaProps.put("session.timeout.ms", "30000");
+        kafkaProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+        kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaProps);
 
-        Scanner userInput = new Scanner(System.in);
-        String trackerId = userInput.nextLine();
-
-        while (!trackerId.isEmpty())
-        {
-            consumer.subscribe(Arrays.asList("Tracker"+trackerId));
+//        System.out.println("Enter Tracker ID.");
+//        Scanner userInput = new Scanner(System.in);
+//        String trackerId = userInput.nextLine();
+//
+//        if (!trackerId.isEmpty())
+//        {
+            consumer.subscribe(Arrays.asList("Tracker"+1));
             try {
                 while (true)
                 {
@@ -44,13 +47,13 @@ public class GpsConsumer
                         String lon = value[1];
                         String alt = value[2];
 
-                        System.out.printf("Tracker%s | Latitude: %s, Longitude: %s, Altitude: %s\n", trackerId, lat, lon, alt);
+                        System.out.printf("Tracker%s | Latitude: %s, Longitude: %s, Altitude: %s\n", "1", lat, lon, alt);
 //                        System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                     }
                 }
             } finally {
                 consumer.close();
             }
-        }
+//        }
     }
 }

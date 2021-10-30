@@ -49,7 +49,7 @@ public class GpsStreamsKafka
 
     }
 
-    public Properties init_properties()
+    public static Properties init_properties()
     {
         Properties properties = new Properties();
         properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "KafkaGps");
@@ -64,7 +64,7 @@ public class GpsStreamsKafka
     e.g. 40.0138816,116.3438099,154.2 -> 40.0138816,116.3438099
     Each new stream should output to a topic named "SimpleTrackerX", where X matches the input stream number.
     The key for each event should remain the same. */
-    public void firstSetOfStreams(StreamsBuilder gpsStreamer)
+    public static void firstSetOfStreams(StreamsBuilder gpsStreamer)
     {
         for (int i = 0; i < 10; i++)
         {
@@ -76,7 +76,7 @@ public class GpsStreamsKafka
         }
     }
 
-    public KStream<String, String> combine_stream(StreamsBuilder gpsStreamer)
+    public static KStream<String, String> combine_stream(StreamsBuilder gpsStreamer)
     {
         KStream<String, String> combinedStream = null;
         for (int i = 0; i < 10; i++)
@@ -95,7 +95,7 @@ public class GpsStreamsKafka
 
     /* 1 stream that combines all input streams, and only outputs GPS events in the greater Beijing area (Latitude between 39.5-40.5, Longitude between 115.5 -117.0)
     The key for each event should be prepended with the name of the input stream. */
-    public void secondSetOfStream(StreamsBuilder gpsStreamer)
+    public static void secondSetOfStream(StreamsBuilder gpsStreamer)
     {
         KStream<String, String> combined_stream = combine_stream(gpsStreamer);
         KStream<String, String> GreaterBeijingAreaEvents = combined_stream.filter((key, value) -> {
@@ -122,7 +122,7 @@ public class GpsStreamsKafka
 
     }
 
-    public void runStreams()
+    public static void main(String[] args)
     {
         Properties props = init_properties();
         StreamsBuilder gpsStreamer = new StreamsBuilder();
@@ -133,4 +133,5 @@ public class GpsStreamsKafka
         streams.cleanUp();
         streams.start();
     }
+
 }

@@ -1,0 +1,7 @@
+kafka/gps/GpsListener.class
+kafka/gps/GpsService.class
+kafka/gps/GpsService$GpsEvent.class
+kafka/gps/GpsConsumer.class
+kafka/gps/GpsStreamsKafka.class
+kafka/gps/GpsListenerKafka.class
+kafka/gps/AsyncProducerCallback.class
