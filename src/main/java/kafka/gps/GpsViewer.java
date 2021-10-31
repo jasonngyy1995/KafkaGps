@@ -9,7 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import java.util.Scanner;
 
-public class GpsConsumer
+public class GpsViewer
 {
     /* Prints each update from one of the input topics.
     Each update printed should be of the format TrackerX | Latitude: XX.XXX, Longitude: XXX.XXX, Altitude: XXXX.X
@@ -49,7 +49,6 @@ public class GpsConsumer
                         String alt = value[2];
 
                         System.out.printf("%s | Latitude: %s, Longitude: %s, Altitude: %s\n", topic, lat, lon, alt);
-//                        System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                     }
                 }
             } finally {

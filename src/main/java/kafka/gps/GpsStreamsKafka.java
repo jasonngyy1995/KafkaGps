@@ -77,10 +77,7 @@ public class GpsStreamsKafka
                 List<String> tmp2 = new ArrayList<>(tmp);
                 tmp2.remove(2);
                 value = String.join(",", tmp2);
-                System.out.println("test: "+value);
                 return value;
-//                String.join(",",Arrays.asList(value.split(","))
-//                        .remove(2))
             });
 
             updatedValue.to("SimpleTracker"+i);
@@ -93,7 +90,7 @@ public class GpsStreamsKafka
         for (int i = 0; i < 10; i++)
         {
             String topic_name = "Tracker"+i;
-            KStream<String, String> newStream = gpsStreamer.stream(topic_name).map((key,value) ->  new KeyValue<>(topic_name, value.toString()));
+            KStream<String, String> newStream = gpsStreamer.stream(topic_name).map((key,value) ->  new KeyValue<>(topic_name+"_coordinates", value.toString()));
             if (i == 0)
             {
                 combinedStream = newStream;
@@ -133,16 +130,21 @@ public class GpsStreamsKafka
 
     }
 
-    public static void main(String[] args)
+    public static void run()
     {
         Properties props = init_properties();
         StreamsBuilder gpsStreamer = new StreamsBuilder();
         firstSetOfStreams(gpsStreamer);
-//        secondSetOfStream(gpsStreamer);
+        secondSetOfStream(gpsStreamer);
 
         KafkaStreams streams = new KafkaStreams(gpsStreamer.build(), props);
         streams.cleanUp();
         streams.start();
+    }
+
+    public static void main(String[] args)
+    {
+        run();
     }
 
 }
