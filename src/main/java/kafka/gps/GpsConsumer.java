@@ -18,7 +18,7 @@ public class GpsConsumer
     public static void main(String[] args)
     {
         Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", "localhost:9092");
+        kafkaProps.put("bootstrap.servers", "127.0.0.1:9092");
         kafkaProps.put("group.id", "gpsConsumer");
         kafkaProps.put("auto.offset.reset","earliest");
         kafkaProps.put("enable.auto.commit", "true");
@@ -29,13 +29,14 @@ public class GpsConsumer
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaProps);
 
-//        System.out.println("Enter Tracker ID.");
-//        Scanner userInput = new Scanner(System.in);
-//        String trackerId = userInput.nextLine();
-//
-//        if (!trackerId.isEmpty())
-//        {
-            consumer.subscribe(Arrays.asList("Tracker"+1));
+        System.out.println("Enter Tracker ID.");
+        Scanner userInput = new Scanner(System.in);
+        String trackerId = userInput.nextLine();
+        String topic = "Tracker"+trackerId;
+
+        if (!trackerId.isEmpty())
+        {
+            consumer.subscribe(Arrays.asList(topic));
             try {
                 while (true)
                 {
@@ -47,13 +48,13 @@ public class GpsConsumer
                         String lon = value[1];
                         String alt = value[2];
 
-                        System.out.printf("Tracker%s | Latitude: %s, Longitude: %s, Altitude: %s\n", "1", lat, lon, alt);
+                        System.out.printf("%s | Latitude: %s, Longitude: %s, Altitude: %s\n", topic, lat, lon, alt);
 //                        System.out.printf("offset = %d, key = %s, value = %s\n", record.offset(), record.key(), record.value());
                     }
                 }
             } finally {
                 consumer.close();
             }
-//        }
+        }
     }
 }

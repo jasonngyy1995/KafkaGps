@@ -3,7 +3,10 @@ package kafka.gps;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
 import org.apache.kafka.streams.kstream.KStream;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /* For the streams:
@@ -68,9 +71,17 @@ public class GpsStreamsKafka
     {
         for (int i = 0; i < 10; i++)
         {
-            KStream<String, String> gpsReading = gpsStreamer.stream("Tracker"+1);
-            KStream<String, String> updatedValue = gpsReading.mapValues(value -> String.join(",",Arrays.asList(value.split(","))
-                    .remove(2)));
+            KStream<String, String> gpsReading = gpsStreamer.stream("Tracker"+i);
+            KStream<String, String> updatedValue = gpsReading.mapValues(value -> {
+                List<String> tmp = Arrays.asList(value.split(","));
+                List<String> tmp2 = new ArrayList<>(tmp);
+                tmp2.remove(2);
+                value = String.join(",", tmp2);
+                System.out.println("test: "+value);
+                return value;
+//                String.join(",",Arrays.asList(value.split(","))
+//                        .remove(2))
+            });
 
             updatedValue.to("SimpleTracker"+i);
         }
@@ -127,7 +138,7 @@ public class GpsStreamsKafka
         Properties props = init_properties();
         StreamsBuilder gpsStreamer = new StreamsBuilder();
         firstSetOfStreams(gpsStreamer);
-        secondSetOfStream(gpsStreamer);
+//        secondSetOfStream(gpsStreamer);
 
         KafkaStreams streams = new KafkaStreams(gpsStreamer.build(), props);
         streams.cleanUp();

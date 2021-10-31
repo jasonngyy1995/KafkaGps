@@ -42,7 +42,7 @@ public class GpsListenerKafka implements GpsListener
     // name -> tracker id
     public void update(String name, double latitude, double longitude, double altitude) {
         Properties kafkaProps = new Properties();
-        kafkaProps.put("bootstrap.servers", "localhost:9092");
+        kafkaProps.put("bootstrap.servers", "127.0.0.1:9092");
         kafkaProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         kafkaProps.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         kafkaProps.put("auto.create.topics.enable", true);
