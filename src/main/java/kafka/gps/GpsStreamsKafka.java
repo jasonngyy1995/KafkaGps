@@ -67,20 +67,25 @@ public class GpsStreamsKafka
     e.g. 40.0138816,116.3438099,154.2 -> 40.0138816,116.3438099
     Each new stream should output to a topic named "SimpleTrackerX", where X matches the input stream number.
     The key for each event should remain the same. */
+    public static void simplifyEachStream(StreamsBuilder streamer, int id)
+    {
+        KStream<String, String> gpsReading = streamer.stream("Tracker"+id);
+        KStream<String, String> updatedValue = gpsReading.mapValues(value -> {
+            List<String> tmp = Arrays.asList(value.split(","));
+            List<String> tmp2 = new ArrayList<>(tmp);
+            tmp2.remove(2);
+            value = String.join(",", tmp2);
+            return value;
+        });
+
+        updatedValue.to("SimpleTracker"+id);
+    }
+
     public static void firstSetOfStreams(StreamsBuilder gpsStreamer)
     {
         for (int i = 0; i < 10; i++)
         {
-            KStream<String, String> gpsReading = gpsStreamer.stream("Tracker"+i);
-            KStream<String, String> updatedValue = gpsReading.mapValues(value -> {
-                List<String> tmp = Arrays.asList(value.split(","));
-                List<String> tmp2 = new ArrayList<>(tmp);
-                tmp2.remove(2);
-                value = String.join(",", tmp2);
-                return value;
-            });
-
-            updatedValue.to("SimpleTracker"+i);
+           simplifyEachStream(gpsStreamer,i);
         }
     }
 
