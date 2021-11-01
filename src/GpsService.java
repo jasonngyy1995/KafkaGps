@@ -25,7 +25,7 @@ public class GpsService {
 
         // Read the data file
         try {   
-            FileInputStream fileIn = new FileInputStream("src/main/java/gps.dat");
+            FileInputStream fileIn = new FileInputStream("src/gps.dat");
             ObjectInputStream in = new ObjectInputStream(fileIn);
             data = (LinkedList<Double[]>[]) in.readObject();
             in.close();
