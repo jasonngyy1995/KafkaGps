@@ -38,7 +38,25 @@ public class GpsStreams_Test
     @Test
     public void test_RemovingAltitude()
     {
+        // SimpleTracker9 as an example
+        Properties props = prop_settings();
+        String topic_name = "SimpleTracker9";
+        KafkaConsumer<String, String> firstStreamTester = new KafkaConsumer<>(props);
+        firstStreamTester.subscribe(Arrays.asList(topic_name));
+        int i = 0;
+        while (i < 20)
+        {
+            ConsumerRecords<String, String> consumerRecords = firstStreamTester.poll(Duration.ofMillis(100));
+            for (ConsumerRecord<String, String> record : consumerRecords)
+            {
+                String[] value_str = record.value().split(",");
+                assertEquals(value_str.length, 2);
+                assertEquals(record.topic(), "SimpleTracker9");
+                System.out.printf("key = %s, value = %s\n", record.key(), record.value());
 
+                i++;
+            }
+        }
     }
 
     @Test
@@ -57,6 +75,7 @@ public class GpsStreams_Test
             ConsumerRecords<String, String> consumerRecords = secondStreamTester.poll(Duration.ofMillis(100));
             for (ConsumerRecord<String, String> record : consumerRecords)
             {
+                assertEquals(record.topic(), "Beijing");
                 String[] value_str = record.value().split(",");
                 double lat_d = Double.parseDouble(value_str[0]);
                 double long_d = Double.parseDouble(value_str[1]);
