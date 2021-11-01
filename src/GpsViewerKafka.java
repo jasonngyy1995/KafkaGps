@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import java.util.Scanner;
 
-public class GpsViewer
+public class GpsViewerKafka
 {
     /* Prints each update from one of the input topics.
     Each update printed should be of the format TrackerX | Latitude: XX.XXX, Longitude: XXX.XXX, Altitude: XXXX.X
