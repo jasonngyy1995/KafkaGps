@@ -128,10 +128,10 @@ public class GpsStreamsKafka
     The key for each new event should be "distance" from the start of the 5 minute period.
     The value should be a distance in meters
     Each new stream should output to a topic named "DistanceTrackerX", where X matches the input stream number. */
-//    public void thirdSetOfStream(StreamsBuilder gpsStreamer)
-//    {
-//
-//    }
+    public void thirdSetOfStream(StreamsBuilder gpsStreamer)
+    {
+
+    }
 
     public static void run()
     {

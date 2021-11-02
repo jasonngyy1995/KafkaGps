@@ -59,55 +59,55 @@ public class GpsProducerAndConsumer_Test
         }
     }
 
-    @Test
-    public void seeInputPrintResult()
-    {
-        final Runnable printGpsViewerResult = new Thread(() -> {
-            ByteArrayInputStream in = new ByteArrayInputStream("5".getBytes());
-            System.setIn(in);
-
-            GpsViewerKafka gpsViewerKafka = new GpsViewerKafka();
-            gpsViewerKafka.run();
-        });
-
-        final ExecutorService executor = Executors.newSingleThreadExecutor();
-        final Future future = executor.submit(printGpsViewerResult);
-        executor.shutdown(); // This does not cancel the already-scheduled task.
-
-        try {
-            future.get(5, TimeUnit.SECONDS);
-        }
-        catch (InterruptedException ie) {
-            // ignore
-        }
-        catch (ExecutionException ee) {
-            // ignore
-        }
-        catch (TimeoutException te) {
-            // ignore
-        }
-        if (!executor.isTerminated())
-            executor.shutdownNow(); // If you want to stop the code that hasn't finished.
-    }
-
-    @Test
-    public void test_basicProducerAndConsumer()
-    {
-        ArrayList<String> tmp_list = new ArrayList<>();
-        Properties properties = prop_settings();
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
-        Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-        Set<String> topicNames = topics.keySet();
-        for (String topic : topicNames)
-        {
-            String sub_str = topic.substring(0,7);
-            if (sub_str.equals("Tracker"))
-            {
-                tmp_list.add(topic);
-            }
-        }
-
-        ArrayList<String> testList = new ArrayList<>(Arrays.asList("Tracker0","Tracker1", "Tracker2","Tracker3","Tracker4","Tracker5","Tracker6","Tracker7","Tracker8","Tracker9"));
-        assertTrue(tmp_list.size() == testList.size() && tmp_list.containsAll(testList) && testList.containsAll(tmp_list));
-    }
+//    @Test
+//    public void seeInputPrintResult()
+//    {
+//        final Runnable printGpsViewerResult = new Thread(() -> {
+//            ByteArrayInputStream in = new ByteArrayInputStream("5".getBytes());
+//            System.setIn(in);
+//
+//            GpsViewerKafka gpsViewerKafka = new GpsViewerKafka();
+//            gpsViewerKafka.run();
+//        });
+//
+//        final ExecutorService executor = Executors.newSingleThreadExecutor();
+//        final Future future = executor.submit(printGpsViewerResult);
+//        executor.shutdown(); // This does not cancel the already-scheduled task.
+//
+//        try {
+//            future.get(5, TimeUnit.SECONDS);
+//        }
+//        catch (InterruptedException ie) {
+//            // ignore
+//        }
+//        catch (ExecutionException ee) {
+//            // ignore
+//        }
+//        catch (TimeoutException te) {
+//            // ignore
+//        }
+//        if (!executor.isTerminated())
+//            executor.shutdownNow(); // If you want to stop the code that hasn't finished.
+//    }
+//
+//    @Test
+//    public void test_basicProducerAndConsumer()
+//    {
+//        ArrayList<String> tmp_list = new ArrayList<>();
+//        Properties properties = prop_settings();
+//        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
+//        Map<String, List<PartitionInfo>> topics = consumer.listTopics();
+//        Set<String> topicNames = topics.keySet();
+//        for (String topic : topicNames)
+//        {
+//            String sub_str = topic.substring(0,7);
+//            if (sub_str.equals("Tracker"))
+//            {
+//                tmp_list.add(topic);
+//            }
+//        }
+//
+//        ArrayList<String> testList = new ArrayList<>(Arrays.asList("Tracker0","Tracker1", "Tracker2","Tracker3","Tracker4","Tracker5","Tracker6","Tracker7","Tracker8","Tracker9"));
+//        assertTrue(tmp_list.size() == testList.size() && tmp_list.containsAll(testList) && testList.containsAll(tmp_list));
+//    }
 }
