@@ -90,24 +90,24 @@ public class GpsProducerAndConsumer_Test
             executor.shutdownNow(); // If you want to stop the code that hasn't finished.
     }
 
-    @Test
-    public void test_basicProducerAndConsumer()
-    {
-        ArrayList<String> tmp_list = new ArrayList<>();
-        Properties properties = prop_settings();
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
-        Map<String, List<PartitionInfo>> topics = consumer.listTopics();
-        Set<String> topicNames = topics.keySet();
-        for (String topic : topicNames)
-        {
-            String sub_str = topic.substring(0,7);
-            if (sub_str.equals("Tracker"))
-            {
-                tmp_list.add(topic);
-            }
-        }
-
-        ArrayList<String> testList = new ArrayList<>(Arrays.asList("Tracker0","Tracker1", "Tracker2","Tracker3","Tracker4","Tracker5","Tracker6","Tracker7","Tracker8","Tracker9"));
-        assertTrue(tmp_list.size() == testList.size() && tmp_list.containsAll(testList) && testList.containsAll(tmp_list));
-    }
+//    @Test
+//    public void test_basicProducerAndConsumer()
+//    {
+//        ArrayList<String> tmp_list = new ArrayList<>();
+//        Properties properties = prop_settings();
+//        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
+//        Map<String, List<PartitionInfo>> topics = consumer.listTopics();
+//        Set<String> topicNames = topics.keySet();
+//        for (String topic : topicNames)
+//        {
+//            String sub_str = topic.substring(0,7);
+//            if (sub_str.equals("Tracker"))
+//            {
+//                tmp_list.add(topic);
+//            }
+//        }
+//
+//        ArrayList<String> testList = new ArrayList<>(Arrays.asList("Tracker0","Tracker1", "Tracker2","Tracker3","Tracker4","Tracker5","Tracker6","Tracker7","Tracker8","Tracker9"));
+//        assertTrue(tmp_list.size() == testList.size() && tmp_list.containsAll(testList) && testList.containsAll(tmp_list));
+//    }
 }
