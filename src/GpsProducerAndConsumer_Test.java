@@ -14,13 +14,7 @@ import java.util.concurrent.*;
 
 public class GpsProducerAndConsumer_Test
 {
-    @Before
-    public void run_prodAndStream()
-    {
-        GpsService gpsService = new GpsService();
-        gpsService.run();
-    }
-
+    // settings for consumer properties
     public Properties prop_settings()
     {
         Properties kafkaProps = new Properties();
@@ -36,13 +30,21 @@ public class GpsProducerAndConsumer_Test
         return kafkaProps;
     }
 
+    // test case for checking correct result produced by producer
     @Test
     public void testOriginalTopic()
     {
+        // run GpsService to produce records first
+        GpsService gpsService = new GpsService();
+        gpsService.run();
+
+        // create a consumer which subscribe to Tracker1 for testing
         Properties props = prop_settings();
         String topic_name = "Tracker1";
         KafkaConsumer<String, String> StreamTester = new KafkaConsumer<>(props);
         StreamTester.subscribe(Arrays.asList(topic_name));
+
+        // simulate a timeout
         int i = 0;
         while (i < 20)
         {
@@ -50,8 +52,11 @@ public class GpsProducerAndConsumer_Test
             for (ConsumerRecord<String, String> record : consumerRecords)
             {
                 String[] value_str = record.value().split(",");
+                // 1) check if value's size is 3 (lat+lon+alt)
                 assertEquals(value_str.length, 3);
+                // 2) check if message topic matches "Tracker1"
                 assertEquals(record.topic(), "Tracker1");
+                // print the record for manual check
                 System.out.printf("key = %s, value = %s\n", record.key(), record.value());
 
                 i++;
@@ -59,21 +64,25 @@ public class GpsProducerAndConsumer_Test
         }
     }
 
+    // Test case to check if return record matches user entered Tracker within a period of time
     @Test
     public void seeInputPrintResult()
     {
         final Runnable printGpsViewerResult = new Thread(() -> {
+            // set the testing user input as 5, subscribed tracker should be "Tracker5"
             ByteArrayInputStream in = new ByteArrayInputStream("5".getBytes());
             System.setIn(in);
 
+            // run our consumer and check the printed output
             GpsViewerKafka gpsViewerKafka = new GpsViewerKafka();
             gpsViewerKafka.run();
         });
 
         final ExecutorService executor = Executors.newSingleThreadExecutor();
         final Future future = executor.submit(printGpsViewerResult);
-        executor.shutdown(); // This does not cancel the already-scheduled task.
+        executor.shutdown();
 
+        // set a timeout
         try {
             future.get(5, TimeUnit.SECONDS);
         }
@@ -90,6 +99,7 @@ public class GpsProducerAndConsumer_Test
             executor.shutdownNow(); // If you want to stop the code that hasn't finished.
     }
 
+    // Test case to check if topics Tracker0-9 produced, test passed local but failed in GradeScope. Muted for submission
 //    @Test
 //    public void test_basicProducerAndConsumer()
 //    {

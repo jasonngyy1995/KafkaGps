@@ -14,6 +14,7 @@ public class GpsViewerKafka
     I.e if the user presses 1, the client should display Tracker 1's output */
     public static void run()
     {
+        // setting properties for consumer
         Properties kafkaProps = new Properties();
         kafkaProps.put("bootstrap.servers", "127.0.0.1:9092");
         kafkaProps.put("group.id", "gpsConsumer");
@@ -24,40 +25,46 @@ public class GpsViewerKafka
         kafkaProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         kafkaProps.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
+        // create a Consumer
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaProps);
 
         System.out.println("Enter Tracker ID 0 - 9.");
+        // reading user input
         Scanner userInput = new Scanner(System.in);
         String trackerId = userInput.nextLine();
         String topic = "Tracker"+trackerId;
 
-        if (Integer.parseInt(trackerId) < 0 || Integer.parseInt(trackerId) > 9)
+
+        // exit programme if id is unavailable
+        if (Integer.parseInt(trackerId) < 0 || Integer.parseInt(trackerId) > 9 || trackerId.isEmpty())
         {
             System.out.println("Correct ID: 0 - 9");
             System.exit(0);
         }
 
-        if (!trackerId.isEmpty())
-        {
-            consumer.subscribe(Arrays.asList(topic));
-            try {
-                while (true)
+        // subscribe to the user entered Tracker
+        consumer.subscribe(Arrays.asList(topic));
+        try {
+            while (true)
+            {
+                // fetch data for the subscribed topic
+                ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(100));
+                for (ConsumerRecord<String, String> record : consumerRecords)
                 {
-                    ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(100));
-                    for (ConsumerRecord<String, String> record : consumerRecords)
-                    {
-                        String[] value = record.value().split(",");
-                        String lat = value[0];
-                        String lon = value[1];
-                        String alt = value[2];
+                    String[] value = record.value().split(",");
+                    String lat = value[0];
+                    String lon = value[1];
+                    String alt = value[2];
 
-                        System.out.printf("%s | Latitude: %s, Longitude: %s, Altitude: %s\n", record.topic(), lat, lon, alt);
-                    }
+                     // for result checking, see if record topic matches user input
+                     System.out.printf("%s | Latitude: %s, Longitude: %s, Altitude: %s\n", record.topic(), lat, lon, alt);
                 }
-            } finally {
-                consumer.close();
             }
+        } finally {
+            // close the consumer
+            consumer.close();
         }
+
     }
 
     public static void main(String[] args)
