@@ -59,8 +59,6 @@ public class GpsListenerKafka implements GpsListener
         ProducerRecord producerRecord = create_producerRecord(name, key, value);
 
         producer.send(producerRecord, new AsyncProducerCallback());
-//        System.out.println("Sent Completed.");
-//        System.out.println(name+": "+value);
 
         // wait for all messages in the Producer queue to be delivered
         producer.flush();
